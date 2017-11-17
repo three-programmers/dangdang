@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jk.dao.CategoryDAO">
+	<!-- 定义重复sql片段 -->
+	<sql id="selectColumn">
+		select
+  			t1.n_category_name parentName,
+			t1.n_category_id parentId,
+			t2.n_category_id id,
+			t2.n_category_name name,
+			t2.c_category_type type,
+			t2.c_category_count count
+		from
+			t_category t1
+		inner join
+			t_category t2
+		on
+			t1.n_category_id = t2.n_parent_id
+	</sql>
+	<resultMap type="Category" id="categoryResultMap">
+		<id property="id" column="n_category_id"/>
+		<result property="parentId" column="n_parent_id"/>
+		<result property="name" column="n_category_name"/>
+		<result property="count" column="c_category_count"/>
+		<result property="type" column="c_category_type"/>
+		<collection property="book" javaType="java.util.List" ofType="Book">
+			<id property="id" column="n_book_id"/>
+			<result property="name" column="n_book_name"/>
+			<result property="price" column="n_price"/>
+			<result property="dangPrice" column="n_dang_price"/>		
+			<result property="imgPath" column="n_img_path"/>
+			<result property="author" column="n_author"/>
+			<result property="publish" column="n_publish"/>		
+			<result property="publicationTime" column="n_publication_time"/>
+			<result property="contentValidity" column="n_content_validity"/>
+		</collection>
+	</resultMap>
+	<!-- 查询所有分类 -->
+	<select id="selectAllCategory" resultType="Category">
+		<include refid="selectColumn"/>
+	</select>
+	<!-- 根据id查询一级分类及子类 -->
+	<select id="selectFirstCategoryById" resultType="Category">
+		<include refid="selectColumn"/>
+		where t1.n_category_id=#{id}
+	</select>
+	<!-- 查询二级分类及父类 -->
+	<select id="selectChildCategoryById" resultType="Category">
+		<include refid="selectColumn"/>
+		where t2.n_category_id=#{id}
+	</select>
+	<!-- 查询一级分类 -->
+	<select id="selectFirstCategory" resultType="Category">
+		select 
+			n_category_id id,n_category_name name,c_category_type type
+		from 
+			t_category
+		where 
+			n_parent_id is null
+	</select>
+</mapper>

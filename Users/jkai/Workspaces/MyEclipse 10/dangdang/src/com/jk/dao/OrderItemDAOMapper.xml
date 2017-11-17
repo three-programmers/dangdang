@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jk.dao.OrderItemDAO">
+     <insert id="insertOrderItem" useGeneratedKeys="true" keyProperty="orderItem.orderItemId">
+     	insert into t_order_item(n_order_id,n_book_id,n_amount,n_buy_price)
+     	values(#{orderItem.orderId},#{orderItem.bookId},#{orderItem.amount},#{orderItem.buyPrice})
+     </insert>
+</mapper>

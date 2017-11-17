@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jk.dao.BookDAO">
+	<!--  
+	<cache type="com.jk.util.RedisLoggingCache"></cache>
+	-->
+	<sql id="select">
+		select n_book_id,n_book_name,n_price,n_dang_price,n_img_path,n_author,n_publish,n_publication_time,n_shelf_time,n_sales_volume,n_content_validity
+		from t_book
+	</sql>
+	<resultMap type="Book" id="BookResultMap">
+		<id property="id" column="n_book_id"/>
+		<result property="categoryId" column="n_category_id"/>
+		<result property="name" column="n_book_name"/>
+		<result property="author" column="n_author"/>
+		<result property="stock" column="n_stock"/>
+		<result property="price" column="n_price"/>
+		<result property="dangPrice" column="n_dang_price"/>
+		<result property="publicationTime" column="n_publication_time"/>
+		<result property="shelfTime" column="n_shelf_time"/>
+		<result property="isRecommand" column="n_recommand_state"/>
+		<result property="state" column="n_book_state"/>
+		<result property="publish" column="n_publish"/>
+		<result property="edition" column="n_edition"/>
+		<result property="printDate" column="n_print_date"/>
+		<result property="printCount" column="n_print_count"/>
+		<result property="ISBN" column="n_ISBN"/>
+		<result property="wordCount" column="n_word_count"/>
+		<result property="pageCount" column="n_page_count"/>
+		<result property="style" column="n_style"/>
+		<result property="paper" column="n_paper"/>
+		<result property="pack" column="n_package"/>
+		<result property="salesVolume" column="n_sales_volume"/>
+		<result property="editorChoice" column="n_editor_choice"/>
+		<result property="contentValidity" column="n_content_validity"/>
+		<result property="authorIntroduction" column="n_author_introduction"/>
+		<result property="catalog" column="n_catalog"/>
+		<result property="imgPath" column="n_img_path"/>
+	</resultMap>
+	<!-- 按销量查询 -->
+    <select id="selectBookBySalesVolume" resultMap="BookResultMap">
+    	select n_book_id,n_book_name,n_price,n_dang_price,n_img_path
+		from t_book
+		where n_sales_volume &lt;&gt; 0
+		order by n_sales_volume desc
+		limit 4;
+    </select>
+    <!-- 查询编辑推荐图书 -->
+    <select id="selectBookByIsRecommend" resultMap="BookResultMap">
+     	<include refid="select"/>
+		where n_recommand_state = '1'
+    </select>
+    <!-- 编辑推荐分页查询 -->
+    <select id="selectRecommendBookByPage" resultMap="BookResultMap">
+    	<include refid="select"/>
+		where n_recommand_state = '1'
+		limit #{fromRecord},3
+    </select>
+    <!-- 查询编辑推荐图书总量 -->
+    <select id="selectRecommendCount" resultType="java.lang.Integer">
+    	select count(*) from t_book 
+		where n_recommand_state = '1'
+    </select>
+    <!-- 按照图书id查询图书详细信息 -->
+    <select id="selectBookById" resultMap="BookResultMap">
+    	select * from t_book
+    	where n_book_id = #{id}
+    </select>
+    <!-- 按照分类id，分页查询图书 -->
+    <select id="selectBookByCategoryId" resultMap="BookResultMap">
+    	<include refid="select"/>
+    	where n_category_id = #{id}
+    </select>
+	<!-- 购买后更新图书销量 -->
+	<update id="updateSaleVolume">
+		update t_book
+		set n_sales_volume = n_sales_volume+#{count}
+		where n_book_id = #{id}
+	</update>
+	<!-- 查询最新上架图书 -->
+	<select id="selectNewShelfBooks" resultMap="BookResultMap">
+		<include refid="select"></include>
+		order by n_shelf_time desc
+		limit 8
+	</select>
+	<!-- 查询新书热卖前三 -->
+	<select id="selectNewShelfHot" resultMap="BookResultMap">
+		select n_book_id,n_book_name,n_price,n_dang_price,n_img_path,n_author,n_publish,n_publication_time,n_shelf_time,n_sales_volume,n_content_validity
+		from (<include refid="select"></include> t_book order by n_shelf_time desc limit 8)t
+		order by n_sales_volume desc
+		limit 3
+	</select>
+</mapper>

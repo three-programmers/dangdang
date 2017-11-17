@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jk.dao.UserAllOrdersDAO">
+	 <sql id="selectSql">
+	 	from t_book,t_order,t_order_item
+		where t_order.n_order_id=t_order_item.n_order_id and t_order_item.n_book_id=t_book.n_book_id and t_order.n_user_id=#{id}
+	 </sql>
+     <resultMap type="UserAllOrders" id="UserAllOrdersResultMap">
+     	<result property="orderId" column="n_order_id"/>
+     	<result property="orderTime" column="d_order_time"/>
+     	<result property="amount" column="n_amount"/>
+     	<result property="totalPrice" column="n_price"/>
+     	<result property="buyPrice" column="n_buy_price"/>
+     	<result property="bookId" column="n_book_id"/>
+     	<result property="bookName" column="n_book_name"/>
+     	<result property="imgPath" column="n_img_path"/>
+     </resultMap>
+     <select id="selectUserOrders" resultMap="UserAllOrdersResultMap">
+     	select t_order.n_order_id,d_order_time,n_amount,t_order.n_price,n_buy_price,t_book.n_book_id,n_book_name,n_img_path 
+     	<include refid="selectSql"></include>
+     	limit #{fromRecord},4
+     </select>
+     <select id="selectOrderCount" resultType="java.lang.Integer">
+     	select count(*)
+     	<include refid="selectSql"></include>
+     </select>
+</mapper>
